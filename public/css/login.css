@@ -1,0 +1,35 @@
+.card-header {
+    font-size: 18px;
+    text-align: center;
+    font-weight: 700;
+}
+label.col-md-4.col-form-label.text-md-end {
+    font-weight: 700;
+}
+input#email,
+input#password,
+input#name,
+input#password-confirm {
+    background-color: white;
+}
+label.col-md-12.col-form-label.text-md-end {
+    text-align: left !important;
+    font-weight: 700;
+}
+label.col-md-3.col-form-label.text-md-end {
+    font-weight: 700;
+}
+.offset-md-4 {
+    margin-left: 0px !important;
+}
+a.btn.btn-link {
+    padding: 0px;
+}
+input#remember {
+    background-color: white;
+}
+.btn.btn-primary {
+    width: 100%;
+    border: #00a65a;
+    background-color: #00a65a !important;
+}
