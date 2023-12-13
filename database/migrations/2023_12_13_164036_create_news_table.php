@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class EditNewsTable extends Migration
+class CreateNewsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,6 +13,9 @@ class EditNewsTable extends Migration
      */
     public function up()
     {
+        Schema::table('student', function (Blueprint $table) {
+            $table->string('giangvien_name');
+        });
     }
 
     /**
@@ -22,6 +25,6 @@ class EditNewsTable extends Migration
      */
     public function down()
     {
-        //
+
     }
 }

@@ -41,6 +41,15 @@
             <input type="date" name="birthdate" id="birthdate" class="form-control" required>
         </div>
         
+        <div class="form-group">
+            <label for="giangvien_id">Giảng viên:</label>
+            <select name="giangvien_name" id="giangvien_name" class="form-control" required>
+                @foreach ($giangvienOptions as $id => $name)
+                    <option value="{{ $name }}">{{ $name }}</option>
+                @endforeach
+            </select>
+        </div>
+        
 
 
         <button type="submit" class="btn btn-primary">Thêm sinh viên</button>
