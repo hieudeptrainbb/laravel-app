@@ -13,9 +13,9 @@ class CreateNewsTable extends Migration
      */
     public function up()
     {
-        // Schema::table('student', function (Blueprint $table) {
-        //     $table->string('giangvien_name');
-        // });
+        Schema::table('student', function (Blueprint $table) {
+            $table->string('giangvien_name');
+        });
     }
 
     /**
