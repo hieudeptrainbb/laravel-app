@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
     use App\Models\Student;
+    use App\Models\GiangVien;
     use Illuminate\Http\Request;
     use App\Http\Controllers\Controller;
+
     use Illuminate\Support\Facades\Log;
 
     class StudentController extends Controller
@@ -26,7 +28,9 @@ namespace App\Http\Controllers;
          */
         public function create()
         {
-            return view('students.create');
+            $giangvienOptions = GiangVien::pluck('giangvien_name', 'giangvien_id');
+            return view('students.create')->with('giangvienOptions', $giangvienOptions);
+            return view('students.create', compact('giangvienOptions'));
         }
 
         /**
@@ -43,6 +47,7 @@ namespace App\Http\Controllers;
                 'name' => 'required',
                 'email' => 'required|email|unique:student,email',
                 'birthdate' => 'required|date|before_or_equal:today',
+                'giangvien_name' => 'required',
             ], [
                 'student_code.unique' => 'Mã sinh viên đã tồn tại trong cơ sở dữ liệu.',
                 'email.unique' => 'Địa chỉ email đã tồn tại trong cơ sở dữ liệu.',
@@ -51,6 +56,7 @@ namespace App\Http\Controllers;
 
             // Tạo sinh viên mới và lưu vào cơ sở dữ liệu
             $student = Student::create($data);
+           
 
             // Chuyển hướng người dùng đến trang danh sách sinh viên và hiển thị thông báo thành công
             return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
@@ -77,7 +83,8 @@ namespace App\Http\Controllers;
         {
             //
             $student = Student::findOrFail($id);
-            return view('students.edit', compact('student'));
+            $giangvienOptions = GiangVien::pluck('giangvien_name', 'giangvien_id');
+            return view('students.edit', compact('student', 'giangvienOptions'));
         }
 
         /**
@@ -94,6 +101,7 @@ namespace App\Http\Controllers;
             'name' => 'required',
             'email' => 'required|email|unique:student,email,'.$id,
             'birthdate' => 'required|date|before_or_equal:today',
+            'giangvien_name' => 'required',
         ], [
             'student_code.unique' => 'Mã sinh viên đã tồn tại trong cơ sở dữ liệu.',
             'email.unique' => 'Địa chỉ email đã tồn tại trong cơ sở dữ liệu.',

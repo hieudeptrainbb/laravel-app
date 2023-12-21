@@ -33,3 +33,6 @@ input#remember {
     border: #00a65a;
     background-color: #00a65a !important;
 }
+.form-control {
+    margin-top: 10px;
+}

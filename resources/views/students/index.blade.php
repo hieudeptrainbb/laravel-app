@@ -48,6 +48,7 @@
                   <th>Họ và tên</th>
                   <th>Email</th>
                   <th>Ngày sinh</th>
+                  <th>Giảng viên</th>
                   <th>Hành động</th>
                 </tr>
                 <tr>
@@ -56,6 +57,7 @@
                   <td>{{ $student->name }}</td>
                   <td>{{ $student->email }}</td>
                   <td>{{ $student->birthdate }}</td>
+                  <td>{{ $student->giangvien_name }}</td>
                   <td>
                   <a href="{{ route('students.edit', $student->id) }}" class="btn btn-success">Sửa</a>
                   <form action="{{ route('students.destroy', $student->id) }}"  method="POST" style="display: inline;">

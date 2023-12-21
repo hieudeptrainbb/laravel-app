@@ -1,6 +1,7 @@
 @extends('admin.master', ['pageID' => 'news'])
 @section('title',"Trang Chu")
 @section('main-content')
+<p>ID người dùng: {{ request()->cookie('user_id') }}</p>
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
