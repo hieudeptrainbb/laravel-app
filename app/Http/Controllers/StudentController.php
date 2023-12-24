@@ -55,17 +55,18 @@ namespace App\Http\Controllers;
                 'birthdate.before_or_equal' => 'Ngày sinh không thể sau ngày hiện tại.',
             ]);
 
-            $student = new Student();
-            $student->student_code = $request->input('name');
-            $student->name = $request->input('name');
-            $student->email = $request->input('email');
-            $student->address = $request->input('address');
-            $student->save();
+            $studentData = [
+                'student_code' => $request->input('student_code'),
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'birthdate' => $request->input('birthdate'),
+                'giangvien_name' => $request->input('giangvien_name'),
+            ];
 
             // Tạo sinh viên mới và lưu vào cơ sở dữ liệu
 //            $student = Student::create($data);
             // Tạo sinh viên mới và lưu vào cơ sở dữ liệu
-            $studentId = DB::table('student')->insert($data);
+            $studentId = DB::table('student')->insert($studentData);
 
 
             // Chuyển hướng người dùng đến trang danh sách sinh viên và hiển thị thông báo thành công
