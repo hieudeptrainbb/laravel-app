@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-class CongNhan extends CanBo
+    class CongNhan extends CanBo
 {
     protected $bac;
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\CookieController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CanBoController;
+use App\Http\Controllers\QuanLyThiSinhController;
 
 
 
@@ -32,6 +33,13 @@ Route::prefix('students')->group(function () {
 
 });
 
+
+Route::get('/thi-sinh', [QuanLyThiSinhController::class, 'hienTatCa'])->name('thi_sinh');
+Route::post('/them-sinh-vien', [QuanLyThiSinhController::class, 'themMoi'])->name('them-sinh-vien');
+Route::get('/them-sinh-vien', [QuanLyThiSinhController::class, 'hienFormThemMoi'])->name('');
+
+
+
 Route::get('/profile', [LoginController::class, 'profile'])->name('auth.profile');
 Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('/login', 'Auth\LoginController@login');
@@ -39,9 +47,11 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware('auth');
 
+
 Route::get('/', function () {
     return view('welcome');
 });
+
 Route::get('/cong-nhan-details', [CanBoController::class, 'getCongNhanDetails']);
 Route::get('/ky', [CanBoController::class, 'getKySu']);
 Route::get('/nhan-vien', [CanBoController::class, 'getNhanVien']);
@@ -50,6 +60,7 @@ Route::get('/nhan-vien', [CanBoController::class, 'getNhanVien']);
 Route::group(['middleware' => 'checksession'], function () {
     Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
 });
+
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [DashBoardController::class, 'index'])->name('admin.index')->middleware('auth','checklogin:class');
