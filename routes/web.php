@@ -23,15 +23,15 @@ use App\Http\Controllers\QuanLyThiSinhController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::prefix('students')->group(function () {
-    Route::get('/create', [StudentController::class, 'create'])->name('students.create');
-    Route::post('/', [StudentController::class, 'store'])->name('students.store');
-    Route::get('/views', [StudentController::class, 'index'])->name('students.index');
-    Route::get('/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
-    Route::put('/{id}', [StudentController::class, 'update'])->name('students.update');
-    Route::delete('/{id}', [StudentController::class, 'destroy'])->name('students.destroy');
-
-});
+//Route::prefix('students')->group(function () {
+//    Route::get('/create', [StudentController::class, 'create'])->name('students.create');
+//    Route::post('/', [StudentController::class, 'store'])->name('students.store');
+//    Route::get('/views', [StudentController::class, 'index'])->name('students.index');
+//    Route::get('/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
+//    Route::put('/{id}', [StudentController::class, 'update'])->name('students.update');
+//    Route::delete('/{id}', [StudentController::class, 'destroy'])->name('students.destroy');
+//
+//});
 
 
 Route::get('/thi-sinh', [QuanLyThiSinhController::class, 'hienTatCa'])->name('thi_sinh');

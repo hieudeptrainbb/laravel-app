@@ -10,7 +10,7 @@
 <form action="{{ route('students.update', $student->id) }}" method="POST">
     @csrf
     @method('PUT')
-    
+
     <div class="form-group">
         <label for="student_code">Mã sinh viên</label>
         <input type="text" class="form-control" id="student_code" name="student_code" value="{{ $student->student_code }}">
@@ -32,15 +32,12 @@
     </div>
 
     <div class="form-group">
-            <label for="giangvien_id">Giảng viên:</label>
-            <select name="giangvien_name" id="giangvien_name" class="form-control" required>
-                @foreach ($giangvienOptions as $id => $name)
-                    @php
-                        $selected = ($student->giangvien_name === $name) ? true : false;
-                    @endphp
-                    <option value="{{ $name }}" @if ($selected) selected @endif>{{ $name }}</option>
-                @endforeach
-            </select>
+        <label for="giangvien_id">Giảng viên:</label>
+        <select name="giangvien_name" id="giangvien_name" class="form-control" required>
+            @foreach ($giangvienOptions as $id => $name)
+                <option value="{{ $id }}">{{ $name }}</option>
+            @endforeach
+        </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Cập nhật</button>

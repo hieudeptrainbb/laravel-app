@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\DB;
     use App\Http\Controllers\Controller;
-
     use Illuminate\Support\Facades\Log;
 
     class StudentController extends Controller
@@ -16,10 +15,26 @@ namespace App\Http\Controllers;
          *
          * @return \Illuminate\Http\Response
          */
+
+
         public function index()
         {
+            /* ORM
             $students = Student::all();
-            return view('students.index', compact('students'));
+            */
+
+            dd(123);
+            $students = DB::table('student')->get();
+
+            return  $students;
+
+//            return view('students.index', compact('students'));
+        }
+
+        public function test()
+        {
+            dd(123);
+
         }
 
         /**
@@ -30,6 +45,7 @@ namespace App\Http\Controllers;
         public function create()
         {
             $giangvienOptions = GiangVien::pluck('giangvien_name', 'giangvien_id');
+            dd(1);
             return view('students.create')->with('giangvienOptions', $giangvienOptions);
             return view('students.create', compact('giangvienOptions'));
         }
@@ -43,6 +59,7 @@ namespace App\Http\Controllers;
         public function store(Request $request)
     {
             // Kiểm tra và xác thực dữ liệu từ yêu cầu
+
             $data = $request->validate([
                 'student_code' => 'required|unique:student,student_code',
                 'name' => 'required',
@@ -54,7 +71,6 @@ namespace App\Http\Controllers;
                 'email.unique' => 'Địa chỉ email đã tồn tại trong cơ sở dữ liệu.',
                 'birthdate.before_or_equal' => 'Ngày sinh không thể sau ngày hiện tại.',
             ]);
-
             $studentData = [
                 'student_code' => $request->input('student_code'),
                 'name' => $request->input('name'),
@@ -69,8 +85,9 @@ namespace App\Http\Controllers;
             $studentId = DB::table('student')->insert($studentData);
 
 
+            return  $studentId;
             // Chuyển hướng người dùng đến trang danh sách sinh viên và hiển thị thông báo thành công
-            return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
+//            return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
     }
 
         /**
@@ -94,14 +111,13 @@ namespace App\Http\Controllers;
         {
             /*Elequent ORM
             $student = Student::findOrFail($id);
+*/
 
-            $giangvienOptions = GiangVien::pluck('giangvien_name', 'giangvien_id');
-            */
 //            Query Builder
             $student = DB::table('student')->where('id', $id)->first();
 
-            // Lấy danh sách giảng viên từ bảng student để tạo options cho select box
-            $giangvienOptions = DB::table('student')->pluck('giangvien_name');
+            // Lấy danh sách giảng viên từ bảng table_giangvien để tạo options cho select box
+            $giangvienOptions = DB::table('table_giangvien')->pluck('giangvien_name');
 
             return view('students.edit', compact('student', 'giangvienOptions'));
         }
@@ -126,6 +142,17 @@ namespace App\Http\Controllers;
             'email.unique' => 'Địa chỉ email đã tồn tại trong cơ sở dữ liệu.',
             'birthdate.before_or_equal' => 'Ngày sinh không thể sau ngày hiện tại.',
         ]);
+
+        // Lấy dữ liệu từ request
+        $studentData = [
+            'student_code' => $request->input('student_code'),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'birthdate' => $request->input('birthdate'),
+            'giangvien_name' => $request->input('giangvien_name'),
+        ];
+
+
         /* Elequent ORM
 
         $student = Student::findOrFail($id);
@@ -133,9 +160,10 @@ namespace App\Http\Controllers;
 
         */
         // Cập nhật thông tin sinh viên trong bảng students
-        $affected = DB::table('student')
-            ->where('id', $id)
-            ->update($request->except('_token', '_method'));
+
+        DB::table('student')
+                ->where('id', $id)
+            ->update($studentData);
 
         return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
     }

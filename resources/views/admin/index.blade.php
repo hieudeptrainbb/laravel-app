@@ -7,7 +7,8 @@
     <section class="content-header">
       <h1>
         Quản lý menu trang giao diện
-       
+          @csrf
+
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -53,7 +54,7 @@
                   <td>
                   <a href="edit-menu.html" class="btn btn-success">Sửa</a>
                   <a href="" class="btn btn-danger">Xóa</a>
-                    
+
                   </td>
                 </tr>
                 <tr>
@@ -64,7 +65,7 @@
                   <td>
                   <a href="" class="btn btn-success">Sửa</a>
                   <a href="" class="btn btn-danger">Xóa</a>
-                    
+
                   </td>
                 </tr>
                 <tr>
@@ -75,7 +76,7 @@
                   <td>
                   <a href="" class="btn btn-success">Sửa</a>
                   <a href="" class="btn btn-danger">Xóa</a>
-                    
+
                   </td>
                 </tr>
                 <tr>
@@ -86,7 +87,7 @@
                   <td>
                   <a href="" class="btn btn-success">Sửa</a>
                   <a href="" class="btn btn-danger">Xóa</a>
-                    
+
                   </td>
                 </tr>
                 <tr>
@@ -97,7 +98,7 @@
                   <td>
                   <a href="" class="btn btn-success">Sửa</a>
                   <a href="" class="btn btn-danger">Xóa</a>
-                    
+
                   </td>
                 </tr>
               </tbody></table>
@@ -111,6 +112,5 @@
     </section>
     <!-- /.content -->
   </div>
-@endsection   
+@endsection
 
-      

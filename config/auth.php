@@ -41,6 +41,10 @@ return [
             'provider' => 'users',
             'remember' => true,
         ],
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
     ],
 
     /*

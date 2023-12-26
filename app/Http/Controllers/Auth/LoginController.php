@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cookie;
 
 class LoginController extends Controller
 {
-    
+
     public function profile()
     {
         $user = Auth::user();
@@ -24,8 +24,8 @@ class LoginController extends Controller
         if (Auth::check()) {
             return redirect()->route('home');
         }
-        
-       
+
+
     if (Session::has('user_id')) {
         // Nếu có thông tin người dùng trong session, chuyển hướng đến trang chủ
         return redirect()->route('home');
@@ -69,7 +69,7 @@ class LoginController extends Controller
              $username = Auth::user()->name;
              $password = Auth::user()->password;
              $id = Auth::user()->id;
-             
+
              // Tạo các cookie riêng lẻ chứa thông tin của người dùng
              $cookie = cookie('user_id', $id, 600);
 
@@ -98,7 +98,7 @@ class LoginController extends Controller
 {
     $allSessionValues = Session::all();
     $sessionId = session()->getId();
-    
+
     // Lấy giá trị của một cookie cụ thể
     $specificCookieValue = $request->cookie('user_info');
 
