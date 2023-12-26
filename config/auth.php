@@ -39,8 +39,8 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
-            'remember' => true,
         ],
+     
         'api' => [
             'driver' => 'passport',
             'provider' => 'users',

@@ -4,6 +4,7 @@
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\StudentController;
     use App\Http\Controllers\Auth\LoginController;
+    use App\Http\Controllers\api\UserController;
     /*
     |--------------------------------------------------------------------------
     | API Routes
@@ -20,7 +21,9 @@
     });
     Route::middleware('auth:api')->get('post', [LoginController::class, 'index']);
 
+    Route::post('login', [UserController::class, 'login']);
+    Route::post('register', [UserController::class, 'register']);
+    Route::get('register', [UserController::class, 'register']);
     Route::group(['middleware' => 'auth:api'], function() {
-        Route::post('details', 'api\UserController@details');
+        Route::post('details', [UserController::class, 'details']);
     });
-
