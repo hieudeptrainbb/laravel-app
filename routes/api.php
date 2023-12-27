@@ -5,6 +5,8 @@
     use App\Http\Controllers\StudentController;
     use App\Http\Controllers\Auth\LoginController;
     use App\Http\Controllers\api\UserController;
+    use App\Http\Controllers\CabinetController;
+    use App\Http\Controllers\RentalController;
     /*
     |--------------------------------------------------------------------------
     | API Routes
@@ -23,7 +25,18 @@
 
     Route::post('login', [UserController::class, 'login']);
     Route::post('register', [UserController::class, 'register']);
-    Route::get('register', [UserController::class, 'register']);
     Route::group(['middleware' => 'auth:api'], function() {
         Route::post('details', [UserController::class, 'details']);
     });
+
+//    Route Student Controller
+    Route::get('/student', [StudentController::class, 'index']);
+    Route::post('/student', [StudentController::class, 'store']);
+    Route::get('/student/{id}', [StudentController::class, 'show']);
+    Route::put('/student/{id}', [StudentController::class, 'update']);
+    Route::delete('/student/{id}', [StudentController::class, 'destroy']);
+
+    // Quan ly tu do
+    Route::post('/cabinets', [CabinetController::class, 'store']);
+    Route::post('/rentals', [RentalController::class, 'store']);
+    Route::get('/rentals', [RentalController::class, 'getItems']);

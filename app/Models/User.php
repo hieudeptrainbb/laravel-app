@@ -15,8 +15,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'student_code',
-        'birthdate'
     ];
 
     protected $hidden = [
@@ -27,5 +25,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function rentals()
+    {
+        return $this->hasMany(Rental::class);
+    }
 
 }

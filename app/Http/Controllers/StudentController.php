@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
     use Illuminate\Support\Facades\DB;
     use App\Http\Controllers\Controller;
     use Illuminate\Support\Facades\Log;
+    use Illuminate\Support\Facades\Validator;
 
     class StudentController extends Controller
     {
@@ -19,16 +20,14 @@ namespace App\Http\Controllers;
 
         public function index()
         {
-            /* ORM
-            $students = Student::all();
-            */
-
-            dd(123);
+            /* Query Builder
             $students = DB::table('student')->get();
+            */
+            $students = Student::all();
 
-            return  $students;
 
 //            return view('students.index', compact('students'));
+            return response()->json($students);
         }
 
         public function test()
@@ -45,7 +44,6 @@ namespace App\Http\Controllers;
         public function create()
         {
             $giangvienOptions = GiangVien::pluck('giangvien_name', 'giangvien_id');
-            dd(1);
             return view('students.create')->with('giangvienOptions', $giangvienOptions);
             return view('students.create', compact('giangvienOptions'));
         }
@@ -59,8 +57,14 @@ namespace App\Http\Controllers;
         public function store(Request $request)
     {
             // Kiểm tra và xác thực dữ liệu từ yêu cầu
-
-            $data = $request->validate([
+            $studentData = [
+                'student_code' => $request->input('student_code'),
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'birthdate' => $request->input('birthdate'),
+                'giangvien_name' => $request->input('giangvien_name'),
+            ];
+            $validator = Validator::make($studentData,[
                 'student_code' => 'required|unique:student,student_code',
                 'name' => 'required',
                 'email' => 'required|email|unique:student,email',
@@ -71,21 +75,14 @@ namespace App\Http\Controllers;
                 'email.unique' => 'Địa chỉ email đã tồn tại trong cơ sở dữ liệu.',
                 'birthdate.before_or_equal' => 'Ngày sinh không thể sau ngày hiện tại.',
             ]);
-            $studentData = [
-                'student_code' => $request->input('student_code'),
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'birthdate' => $request->input('birthdate'),
-                'giangvien_name' => $request->input('giangvien_name'),
-            ];
 
             // Tạo sinh viên mới và lưu vào cơ sở dữ liệu
-//            $student = Student::create($data);
+            $student = Student::create($studentData);
             // Tạo sinh viên mới và lưu vào cơ sở dữ liệu
-            $studentId = DB::table('student')->insert($studentData);
+           /* Query Builder $studentId = DB::table('student')->insert($studentData); */
 
 
-            return  $studentId;
+            return  response()->json($student, 201);
             // Chuyển hướng người dùng đến trang danh sách sinh viên và hiển thị thông báo thành công
 //            return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
     }
@@ -98,15 +95,15 @@ namespace App\Http\Controllers;
          */
         public function show($id)
         {
-            //
+            // Lấy thông tin item theo ID
+            $student = Student::find($id);
+            if (!$student) {
+                return response()->json(['message' => 'Item not found'], 404);
+            }
+            return response()->json($student);
         }
 
-        /**
-         * Show the form for editing the specified resource.
-         *
-         * @param  int  $id
-         * @return \Illuminate\Http\Response
-         */
+
         public function edit($id)
         {
             /*Elequent ORM
@@ -153,19 +150,22 @@ namespace App\Http\Controllers;
         ];
 
 
-        /* Elequent ORM
+
 
         $student = Student::findOrFail($id);
-        $student->update($request->all());
 
-        */
         // Cập nhật thông tin sinh viên trong bảng students
 
-        DB::table('student')
-                ->where('id', $id)
-            ->update($studentData);
+// Query Builder        DB::table('student')
+//                ->where('id', $id)
+//            ->update($studentData);
 
-        return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
+        if (!$student) {
+            return response()->json(['message' => 'Item not found'], 404);
+        }
+        $student->update($request->all());
+        return response()->json($student);
+//        return redirect()->route('students.index')->with('success', 'Cập nhật sinh viên thành công!');
     }
 
         /**
@@ -176,13 +176,17 @@ namespace App\Http\Controllers;
          */
         public function destroy($id)
         {
-            /* ORM
-            $student = Student::findOrFail($id);
-            $student->delete();
-            */
-            // Xóa sinh viên từ bảng students
-            $deleted = DB::table('student')->where('id', $id)->delete();
 
-            return redirect()->route('students.index')->with('success', 'Xóa sinh viên thành công!');
+            $student = Student::findOrFail($id);
+            if (!$student) {
+                return response()->json(['message' => 'Item not found'], 404);
+            }
+            $student->delete();
+            return response()->json(['message' => 'Item deleted']);
+
+            // Xóa sinh viên từ bảng students Query Builder
+//            $deleted = DB::table('student')->where('id', $id)->delete();
+
+//            return redirect()->route('students.index')->with('success', 'Xóa sinh viên thành công!');
         }
     }
