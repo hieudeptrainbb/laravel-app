@@ -16,6 +16,7 @@ class CreateCabinetsTable extends Migration
         Schema::create('cabinets', function (Blueprint $table) {
             $table->id();
             $table->string('type');
+            $table->string('status');
             $table->decimal('price', 8, 2);
             $table->timestamps();
         });

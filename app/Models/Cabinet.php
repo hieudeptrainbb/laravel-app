@@ -11,5 +11,6 @@ class Cabinet extends Model
     protected $fillable = [
         'type',
         'price',
+        'status',
     ];
 }

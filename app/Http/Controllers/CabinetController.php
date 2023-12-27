@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Rental;
+use App\Models\Cabinet;
 use Illuminate\Http\Request;
 
 class CabinetController extends Controller
@@ -16,8 +16,9 @@ class CabinetController extends Controller
         ]);
 
         $cabinet = Cabinet::create([
-            'type' => $request->input('type'),
-            'price' => $request->input('price'),
+            'type' => $request->type,
+            'status' => $request->status,
+            'price' => $request->price,
         ]);
 
         return response()->json(['message' => 'Cabinet created successfully']);
