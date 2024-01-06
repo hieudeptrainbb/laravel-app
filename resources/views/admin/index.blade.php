@@ -6,7 +6,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Quản lý menu trang giao diện
+        Thuê Tủ
           @csrf
 
       </h1>
@@ -24,7 +24,7 @@
       <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-           <a href="add-menu.html" class="btn btn-success">+Thêm mới Menu</a>
+           <a href="{{ route('thuetu.store') }}" class="btn btn-success">Thuê ngăn</a>
 
               <div class="box-tools">
                 <div class="input-group input-group-sm" style="width: 150px;">
@@ -39,69 +39,49 @@
             <!-- /.box-header -->
             <div class="box-body table-responsive no-padding">
               <table class="table table-hover">
-                <tbody><tr>
-                  <th>Tên</th>
-                  <th>Menu cha</th>
-                  <th>Ngày tạo</th>
-                  <th>Trạng thái</th>
-                  <th>Tùy chọn</th>
-                </tr>
-                <tr>
-                  <td>Trang chủ</td>
-                  <td>____</td>
-                  <td>10-10-2018</td>
-                  <td><span class="label label-success">Hiển thị</span></td>
-                  <td>
-                  <a href="edit-menu.html" class="btn btn-success">Sửa</a>
-                  <a href="" class="btn btn-danger">Xóa</a>
+                  <tbody>
+                  <tr>
+                      <th>ID</th>
+                      <th>Tên Tủ</th>
+                      <th>Tên ngăn</th>
+                      <th>Ngày giờ bắt đầu</th>
+                      <th>Ngày giờ kết thúc</th>
+                      <th>Tổng số giờ</th>
+                      <th>Phân loại ngăn</th>
+                      <th>Đơn giá</th>
+                      <th>Thành tiền</th>
+                      <th>Trạng thái</th>
+                      <th>Tùy chọn</th>
+                  </tr>
+                  @foreach($thueTus as $thueTu)
+                      <tr>
+                          <td>{{ $thueTu->id }}</td>
+                          <td>{{ $thueTu->phanLoai->ten }}</td>
+                          <td>{{ $thueTu->ngan->ten_ngan }}</td>
+                          <td>{{ $thueTu->ngay_gio_bat_dau }}</td>
+                          <td>{{ $thueTu->ngay_gio_ket_thuc }}</td>
+                          <td>{{ $thueTu->tong_so_gio }}</td>
+                          <td>{{ $thueTu->ngan->phanloai_ngan }}</td>
+                          <td>{{ $thueTu->don_gia }}</td>
+                          <td>{{ $thueTu->thanh_tien }}</td>
+                          <td>
+                              @if ($thueTu->trang_thai == 'pending')
+                                  <span class="label label-danger">Chưa Thanh Toán</span>
+                              @else
+                                  <span class="label label-success">Đã Thanh Toán</span>
+                              @endif
+                          </td>
+                          <td>
+                              <form method="POST" action="{{ route('thuetu.tratu', ['id' => $thueTu->id]) }}">
+                                  @csrf
+                                  @method('POST') <!-- Thêm dòng này để chỉ định phương thức POST -->
+                                  <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn trả tủ?')">Trả tủ</button>
+                              </form>
+                          </td>
 
-                  </td>
-                </tr>
-                <tr>
-                  <td>Giới Thiệu</td>
-                  <td>____</td>
-                  <td>10-10-2018</td>
-                  <td><span class="label label-success">Hiển thị</span></td>
-                  <td>
-                  <a href="" class="btn btn-success">Sửa</a>
-                  <a href="" class="btn btn-danger">Xóa</a>
-
-                  </td>
-                </tr>
-                <tr>
-                  <td>Đào tạo</td>
-                  <td>____</td>
-                  <td>10-10-2018</td>
-                  <td><span class="label label-success">Hiển thị</span></td>
-                  <td>
-                  <a href="" class="btn btn-success">Sửa</a>
-                  <a href="" class="btn btn-danger">Xóa</a>
-
-                  </td>
-                </tr>
-                <tr>
-                  <td>Chương trình đào tạo</td>
-                  <td>Đào tạo</td>
-                  <td>10-10-2018</td>
-                  <td><span class="label label-success">Hiển thị</span></td>
-                  <td>
-                  <a href="" class="btn btn-success">Sửa</a>
-                  <a href="" class="btn btn-danger">Xóa</a>
-
-                  </td>
-                </tr>
-                <tr>
-                  <td>Thi đua khen thưởng</td>
-                  <td>Đào tạo</td>
-                  <td>10-10-2018</td>
-                  <td><span class="label label-danger">Đang ẩn</span></td>
-                  <td>
-                  <a href="" class="btn btn-success">Sửa</a>
-                  <a href="" class="btn btn-danger">Xóa</a>
-
-                  </td>
-                </tr>
-              </tbody></table>
+                      </tr>
+                  @endforeach
+                  </tbody></table>
             </div>
             <!-- /.box-body -->
           </div>

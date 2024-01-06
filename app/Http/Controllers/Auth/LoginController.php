@@ -55,7 +55,7 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $credentials = $request->only('student_code', 'password');
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             // Đăng nhập thành công, chuyển hướng đến trang sau khi đăng nhập thành công
@@ -109,32 +109,6 @@ class LoginController extends Controller
     ]);
 }
 
-// public function showCookieBySessionId()
-// {
-//     return view('cookie_form');
-// }
-
-// public function getCookieBySessionId(Request $request)
-// {
-//     $sessionId = $request->input('session_id');
-//     $cookieData = [];
-
-//     foreach ($request->cookies->all() as $key => $value) {
-//         $cookieData[$key] = $request->cookie($key);
-//     }
-
-//     $specificCookieValue = null;
-
-//     // Tìm specificCookieValue dựa trên sessionId
-//     foreach ($cookieData as $key => $value) {
-//         if ($value && $key === $sessionId) {
-//             $specificCookieValue = $value;
-//             break;
-//         }
-//     }
-
-//     return view('cookie_info')->with('specificCookieValue', $specificCookieValue);
-// }
 
 
  }

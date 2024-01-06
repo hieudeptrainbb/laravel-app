@@ -2,41 +2,35 @@
 
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Route;
-    use App\Http\Controllers\StudentController;
-    use App\Http\Controllers\Auth\LoginController;
-    use App\Http\Controllers\api\UserController;
-    use App\Http\Controllers\CabinetController;
-    use App\Http\Controllers\RentalController;
-    /*
-    |--------------------------------------------------------------------------
-    | API Routes
-    |--------------------------------------------------------------------------
-    |
-    | Here is where you can register API routes for your application. These
-    | routes are loaded by the RouteServiceProvider within a group which
-    | is assigned the "api" middleware group. Enjoy building your API!
-    |
-    */
+    use App\Http\Controllers\TuController;
+    use App\Http\Controllers\PhanloaiNganController;
+    use App\Http\Controllers\ThemNganController;
+    use App\Http\Controllers\ThueTuController;
+
 
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::middleware('auth:api')->get('post', [LoginController::class, 'index']);
 
-    Route::post('login', [UserController::class, 'login']);
-    Route::post('register', [UserController::class, 'register']);
-    Route::group(['middleware' => 'auth:api'], function() {
-        Route::post('details', [UserController::class, 'details']);
-    });
+    //Quan ly Phan Loai Tu (Tu controller)
 
-//    Route Student Controller
-    Route::get('/student', [StudentController::class, 'index']);
-    Route::post('/student', [StudentController::class, 'store']);
-    Route::get('/student/{id}', [StudentController::class, 'show']);
-    Route::put('/student/{id}', [StudentController::class, 'update']);
-    Route::delete('/student/{id}', [StudentController::class, 'destroy']);
+    Route::post('/add-tu', [TuController::class, 'storeAPI']);
+    Route::put('/add-tu/{phanLoai}', [TuController::class, 'updateAPI']);
+    Route::delete('/add-tu/{phanLoai}', [TuController::class, 'destroyAPI']);
 
-    // Quan ly tu do
-    Route::post('/cabinets', [CabinetController::class, 'store']);
-    Route::post('/rentals', [RentalController::class, 'store']);
-    Route::get('/rentals', [RentalController::class, 'getItems']);
+    //Quan ly Phan Loai Ngan (PhanLoaiNgan controller)
+
+    Route::post('/phan-loai-ngan', [PhanloaiNganController::class, 'storeAPI']);
+    Route::put('/phan-loai-ngan/{id}', [PhanloaiNganController::class, 'updateAPI']);
+    Route::delete('/phan-loai-ngan/{id}', [PhanloaiNganController::class, 'destroyAPI']);
+
+    //Quan ly  Ngan (Ngan controller)
+
+    Route::post('/them-ngan', [ThemNganController::class, 'storeAPI']);
+    Route::put('/them-ngan/{id}', [ThemNganController::class, 'updateAPI']);
+    Route::delete('/them-ngan/{id}', [ThemNganController::class, 'destroyAPI']);
+
+    //Thue Tu (ThueTu controller)
+
+    Route::post('/thue-tu', [ThueTuController::class, 'storeAPI']);
+    Route::put('/thue-tu/{id}', [ThueTuController::class, 'tratuAPI']);

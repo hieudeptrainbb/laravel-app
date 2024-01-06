@@ -10,6 +10,7 @@ use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    protected $table = 'users';
 
     protected $fillable = [
         'name',
@@ -25,9 +26,5 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    public function rentals()
-    {
-        return $this->hasMany(Rental::class);
-    }
 
 }

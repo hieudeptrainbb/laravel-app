@@ -17,14 +17,13 @@
                     <div class="card-body">
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-
                             <div class="form-group row">
-                                <label for="student_code" class="col-md-4 col-form-label text-md-right">{{ __('Mã Sinh viên') }}</label>
+                                <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('Email') }}</label>
 
                                 <div class="col-md-6">
-                                    <input id="student_code" type="student_code" class="form-control @error('student_code') is-invalid @enderror" name="student_code" value="{{ old('student_code') }}" ="student_code" autofocus>
+                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" ="email" autofocus>
 
-                                    @error('student_code')
+                                    @error('email')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>

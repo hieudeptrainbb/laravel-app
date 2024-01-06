@@ -18,6 +18,12 @@ class CategoryController extends Controller
         return view('admin.category.index');
     }
 
+    public function themTu()
+    {
+        //
+        return view('admin.category.add_tu');
+    }
+
     /**
      * Show the form for creating a new resource.
      *

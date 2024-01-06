@@ -19,7 +19,7 @@ class RegisterController extends Controller
     return view('auth.register');
 }
 
-    
+
 
     public function register(Request $request)
 {
@@ -27,16 +27,12 @@ class RegisterController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
-        'birthdate' => 'required|date',
-        'student_code' => 'required|string|max:255|unique:users',
     ]);
 
     User::create([
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
-        'birthdate' => $request->birthdate,
-        'student_code' => $request->student_code,
     ]);
 
     return redirect('/')->with('success', 'Đăng ký thành công!');
