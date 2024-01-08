@@ -13,18 +13,20 @@ use Carbon\Carbon;
 class ThueTuController extends Controller
 {
 
-    public function thueTu()  {
-    $thueTus = \App\Models\ThueTu::all();
-    $ngans = \App\Models\Ngan::all();
-
-    return view('admin.category.thue_tu', compact('thueTus','ngans'));
-    }
-
-    public function indexTu()  {
+    public function thueTu()
+    {
         $thueTus = \App\Models\ThueTu::all();
         $ngans = \App\Models\Ngan::all();
 
-        return view('admin.index', compact('thueTus','ngans'));
+        return view('admin.category.thue_tu', compact('thueTus', 'ngans'));
+    }
+
+    public function indexTu()
+    {
+        $thueTus = \App\Models\ThueTu::all();
+        $ngans = \App\Models\Ngan::all();
+
+        return view('admin.index', compact('thueTus', 'ngans'));
     }
 
     public function index()
@@ -44,20 +46,28 @@ class ThueTuController extends Controller
         // Xử lý logic để lấy danh sách ngăn tương ứng với phân loại và trạng thái
         // Ví dụ: Lấy danh sách ngăn có phân loại $phanLoaiId và trạng thái $trangThai
         $ngans = Ngan::where('phanloai_id', $phanLoaiId)
-                    ->where('trang_thai', $trangThai)
-                    ->get(['id', 'ten_ngan','phanloai_ngan']);
+            ->where('trang_thai', $trangThai)
+            ->get(['id', 'ten_ngan', 'phanloai_ngan']);
 
         return response()->json($ngans);
     }
 
 
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
+
+        $request->validate([
+            'ngang_id' => 'required',
+            'phanloai_id' => 'required',
+            'ngay_gio_bat_dau' => 'required|date',
+        ], [
+            'ngang_id.required' => 'Vui lòng chọn ngăn.',
+            'phanloai_id.required' => 'Vui lòng chọn tủ.',
+            'ngay_gio_bat_dau.required' => 'Vui lòng nhập ngày giờ bắt đầu.',
+            'ngay_gio_bat_dau.date' => 'Ngày giờ bắt đầu không hợp lệ.',
+        ]);
+
+
         $ngan = Ngan::query()
             ->where("id", $request->ngang_id)
             ->where("phanloai_id", $request->phanloai_id)
@@ -67,30 +77,29 @@ class ThueTuController extends Controller
             $phanLoaiNgan = PhanloaiNgan::find($ngan->phanloai_ngan_id);
 
             if ($phanLoaiNgan) {
-                $ngayBatDau = Carbon::parse($request->ngay_gio_bat_dau);
+                Carbon::parse($request->ngay_gio_bat_dau);
 
-                $thueTu = new ThueTu();
-                $thueTu->phanloai_id = $request->phanloai_id;
-                $thueTu->ngang_id = $request->ngang_id;
-                $thueTu->ngay_gio_bat_dau = $request->ngay_gio_bat_dau;
-                $thueTu->ngay_gio_ket_thuc = $request->ngay_gio_ket_thuc;
-                $thueTu->tong_so_gio = 0;
-                $thueTu->don_gia = $phanLoaiNgan->gia;
-                $thueTu->thanh_tien = 0;
-                $thueTu->trang_thai = 'pending';
-                $thueTu->save();
+                ThueTu::create([
+                    'phanloai_id' => $request->phanloai_id,
+                    'ngang_id' => $request->ngang_id,
+                    'ngay_gio_bat_dau' => $request->ngay_gio_bat_dau,
+                    'ngay_gio_ket_thuc' => $request->ngay_gio_ket_thuc,
+                    'tong_so_gio' => 0,
+                    'don_gia' => $phanLoaiNgan->gia,
+                    'thanh_tien' => 0,
+                    'trang_thai' => 'pending'
+                ]);
 
-                $ngan->trang_thai = '1';
-                $ngan->save();
+                $ngan->update(['trang_thai' => '1']);
 
-                $event = new Event();
-                $event->phanloai_id = $request->phanloai_id;
-                $event->ngan = $ngan->ten_ngan;
-                $event->ngan_id = $ngan->id;
-                $event->created_at = $request->ngay_gio_bat_dau;
-                $event->updated_at = $request->ngay_gio_ket_thuc;
-                $event->action = 'thuê tủ';
-                $event->save();
+                Event::create([
+                    'phanloai_id' => $request->phanloai_id,
+                    'ngan' => $ngan->ten_ngan,
+                    'created_at' => $request->ngay_gio_bat_dau,
+                    'ngan_id' => $ngan->id,
+                    'updated_at' => $request->ngay_gio_ket_thuc,
+                    'action' => 'thuê tủ'
+                ]);
 
                 session()->flash('success', 'Đã tạo đơn thuê tủ thành công và cập nhật trạng thái ngăn.');
                 return redirect()->route('category.thue_tu');
@@ -112,27 +121,28 @@ class ThueTuController extends Controller
 
         if ($thueTu->trang_thai === 'pending') {
             $ngan = Ngan::findOrFail($thueTu->ngang_id);
-            $ngan->trang_thai = '0';
-            $ngan->save();
+            $ngan->update(['trang_thai' => '0']);
 
             $thueTu->ngay_gio_ket_thuc = Carbon::now(); // Sử dụng thời gian hiện tại làm thời gian kết thúc
 
             // Tính toán thành tiền dựa trên thời gian thuê và đơn giá
             $ngayKetThuc = Carbon::now('Asia/Ho_Chi_Minh');
             $tongSoGio = $ngayKetThuc->diffInHours($ngayBatDau);
-            $thueTu->tong_so_gio = $tongSoGio;
-            $thueTu->thanh_tien = $thueTu->tong_so_gio * $thueTu->don_gia;
-            $thueTu->trang_thai = 'suss';
-            $thueTu->save();
+            $thueTu->update([
+                'tong_so_gio' => $tongSoGio,
+                'thanh_tien' => $tongSoGio * $thueTu->don_gia,
+                'trang_thai' => 'suss'
+            ]);
 
-            $event = new Event();
-            $event->phanloai_id = $thueTu->phanloai_id;
-            $event->ngan = $ngan->ten_ngan; // Giả sử 'ten_ngan' là tên trường chứa tên ngăn trong bảng 'Ngan'
-            $event->created_at = $ngayBatDau;
-            $event->ngan_id = $ngan->id;
-            $event->updated_at = Carbon::now();
-            $event->action = 'trả tủ';
-            $event->save();
+            Event::create([
+                'phanloai_id' => $thueTu->phanloai_id,
+                'ngan' => $ngan->ten_ngan,
+                'created_at' => $ngayBatDau,
+                'ngan_id' => $ngan->id,
+                'updated_at' => Carbon::now(),
+                'action' => 'trả tủ'
+            ]);
+
 
             session()->flash('success', 'Đã trả tủ thành công.');
         } else {
@@ -143,33 +153,20 @@ class ThueTuController extends Controller
     }
 
 
-
-
-    public function show($id)
-    {
-        //
-    }
-
-
-    public function edit($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
-    }
-
-
     // *** API *** //
     public function storeAPI(Request $request)
     {
+        $request->validate([
+            'ngang_id' => 'required',
+            'phanloai_id' => 'required',
+            'ngay_gio_bat_dau' => 'required|date',
+        ], [
+            'ngang_id.required' => 'Vui lòng chọn ngăn.',
+            'phanloai_id.required' => 'Vui lòng chọn tủ.',
+            'ngay_gio_bat_dau.required' => 'Vui lòng nhập ngày giờ bắt đầu.',
+            'ngay_gio_bat_dau.date' => 'Ngày giờ bắt đầu không hợp lệ.',
+        ]);
+
         $ngan = Ngan::query()
             ->where("id", $request->ngang_id)
             ->where("phanloai_id", $request->phanloai_id)
@@ -179,31 +176,30 @@ class ThueTuController extends Controller
             $phanLoaiNgan = PhanloaiNgan::find($ngan->phanloai_ngan_id);
 
             if ($phanLoaiNgan) {
-                $ngayBatDau = Carbon::parse($request->ngay_gio_bat_dau);
+                Carbon::parse($request->ngay_gio_bat_dau);
 
-                $thueTu = new ThueTu();
-                $thueTu->phanloai_id = $request->phanloai_id;
-                $thueTu->ngang_id = $request->ngang_id;
-                $thueTu->ngay_gio_bat_dau = $request->ngay_gio_bat_dau;
-                $thueTu->ngay_gio_ket_thuc = $request->ngay_gio_ket_thuc;
-                $thueTu->tong_so_gio = 0;
-                $thueTu->don_gia = $phanLoaiNgan->gia;
-                $thueTu->thanh_tien = 0;
-                $thueTu->trang_thai = 'pending';
-                $thueTu->save();
+                $thueTu = ThueTu::create([
+                    'phanloai_id' => $request->phanloai_id,
+                    'ngang_id' => $request->ngang_id,
+                    'ngay_gio_bat_dau' => $request->ngay_gio_bat_dau,
+                    'ngay_gio_ket_thuc' => $request->ngay_gio_ket_thuc,
+                    'tong_so_gio' => 0,
+                    'don_gia' => $phanLoaiNgan->gia,
+                    'thanh_tien' => 0,
+                    'trang_thai' => 'pending'
+                ]);
 
-                $ngan->trang_thai = '1';
-                $ngan->save();
+                $ngan->update(['trang_thai' => '1']);
 
-                $event = new Event();
-                $event->phanloai_id = $request->phanloai_id;
-                $event->ngan = $ngan->ten_ngan;
-                $event->created_at = $request->ngay_gio_bat_dau;
-                $event->updated_at = $request->ngay_gio_ket_thuc;
-                $event->action = 'thuê tủ';
-                $event->save();
+                Event::create([
+                    'phanloai_id' => $request->phanloai_id,
+                    'ngan' => $ngan->ten_ngan,
+                    'created_at' => $request->ngay_gio_bat_dau,
+                    'updated_at' => $request->ngay_gio_ket_thuc,
+                    'action' => 'thuê tủ'
+                ]);
 
-                return response()->json(['success', 'Đã tạo đơn thuê tủ thành công và cập nhật trạng thái ngăn.', 'Thue Ngan' => $thueTu],200);
+                return response()->json(['success', 'Đã tạo đơn thuê tủ thành công và cập nhật trạng thái ngăn.', 'Thue Ngan' => $thueTu], 200);
             } else {
                 return response()->json(['error', 'Không tìm thấy thông tin phân loại.'], 400);
             }
@@ -219,26 +215,26 @@ class ThueTuController extends Controller
 
         if ($thueTu->trang_thai === 'pending') {
             $ngan = Ngan::findOrFail($thueTu->ngang_id);
-            $ngan->trang_thai = '0';
-            $ngan->save();
+            $ngan->update(['trang_thai' => '0']);
 
             $thueTu->ngay_gio_ket_thuc = Carbon::now(); // Sử dụng thời gian hiện tại làm thời gian kết thúc
 
             // Tính toán thành tiền dựa trên thời gian thuê và đơn giá
             $ngayKetThuc = Carbon::now('Asia/Ho_Chi_Minh');
             $tongSoGio = $ngayKetThuc->diffInHours($ngayBatDau);
-            $thueTu->tong_so_gio = $tongSoGio;
-            $thueTu->thanh_tien = $thueTu->tong_so_gio * $thueTu->don_gia;
-            $thueTu->trang_thai = 'suss';
-            $thueTu->save();
+            $thueTu->update([
+                'tong_so_gio' => $tongSoGio,
+                'thanh_tien' => $tongSoGio * $thueTu->don_gia,
+                'trang_thai' => 'suss'
+            ]);
 
-            $event = new Event();
-            $event->phanloai_id = $thueTu->phanloai_id;
-            $event->ngan = $ngan->ten_ngan; // Giả sử 'ten_ngan' là tên trường chứa tên ngăn trong bảng 'Ngan'
-            $event->created_at = $ngayBatDau;
-            $event->updated_at = Carbon::now();
-            $event->action = 'trả tủ';
-            $event->save();
+            Event::create([
+                'phanloai_id' => $thueTu->phanloai_id,
+                'ngan' => $ngan->ten_ngan,
+                'created_at' => $ngayBatDau,
+                'updated_at' => Carbon::now(),
+                'action' => 'trả tủ'
+            ]);
 
             return response()->json(['success', 'Đã trả tủ thành công.', 'Tra Tu' => $thueTu], 200);
         } else {

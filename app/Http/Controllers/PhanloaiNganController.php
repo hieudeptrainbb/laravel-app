@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\PhanloaiNgan;
 use App\Models\PhanLoai;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PhanloaiNganController extends Controller
 {
@@ -15,12 +17,6 @@ class PhanloaiNganController extends Controller
         $phanloaiNgan = PhanLoai::all();
 
         return view('admin.category.add_phanloai_ngan', compact('phanloaiNgan'));
-    }
-
-
-    public function getTenTu($id)
-    {
-
     }
 
 
@@ -36,70 +32,69 @@ class PhanloaiNganController extends Controller
 
     public function store(Request $request)
     {
-        $tenNgan = $request->ten_ngan;
-        $phanloaiId = $request->phanloai_id;
-        $gia = $request->gia;
-
-        $existingNgan = PhanloaiNgan::where('ten_ngan', $tenNgan)
-            ->where('phanloai_id', $phanloaiId)
-            ->first();
-
-        if ($existingNgan) {
-            // Dữ liệu đã tồn tại
-            session()->flash('error', 'Dữ liệu đã tồn tại.');
-            return redirect()->route('phanloai_ngan.index');
-        }
-
-        $phanloaiNgan = new PhanloaiNgan();
-        $phanloaiNgan->ten_ngan = $request->ten_ngan;
-        $phanloaiNgan->phanloai_id = $request->phanloai_id;
-        $phanloaiNgan->ten_tu = PhanLoai::where('id', $request->phanloai_id)->value('ma_tu');
-        $phanloaiNgan->gia = $request->gia;
-        $phanloaiNgan->save();
-
-            session()->flash('success', 'Thêm dữ liệu thành công.');
-            return redirect()->route('category.index.phanloai');
+        $request->validate([
+            'ten_ngan' => ['required',
+                Rule::unique('phanloai_ngan')->where(function ($query) use ($request) {
+                    return $query->where('phanloai_id', $request->phanloai_id);
+                }),
+            ],
+            'phanloai_id' => 'required',
+            'gia' => 'required'
+        ], [
+            'ten_ngan.required' => 'Vui lòng nhập tên ngăn',
+            'ten_ngan.unique' => 'Tên phân loại ngăn đã tồn tại ',
+            'phanloai_id.required' => 'Vui lòng nhập phân loại',
+            'gia.required' => 'Vui lòng nhập giá'
+        ]);
 
 
-    }
+        PhanloaiNgan::create([
+            'ten_ngan' => $request->ten_ngan,
+            'phanloai_id' => $request->phanloai_id,
+            'ten_tu' => PhanLoai::where('id', $request->phanloai_id)->value('ma_tu'),
+            'gia' => $request->gia
+        ]);
 
-
-    public function show($id)
-    {
-        //
+        session()->flash('success', 'Thêm dữ liệu thành công.');
+        return redirect()->route('category.index.phanloai');
     }
 
 
     public function edit($id)
     {
-        $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-        $phanloai = PhanLoai::all(); // Lấy danh sách phân loại
+        try {
+            $phanloaiNgan = PhanloaiNgan::findOrFail($id);
+            $phanloai = PhanLoai::all(); // Lấy danh sách phân loại
 
-        return view('admin.category.edit_phanloai_ngan', compact('phanloaiNgan', 'phanloai'));
+            return view('admin.category.edit_phanloai_ngan', compact('phanloaiNgan', 'phanloai'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            session()->flash('error', 'ID không tồn tại.');
+            return redirect()->back();
+        }
     }
 
 
     public function update(Request $request, $id)
     {
-        $tenNgan = $request->ten_ngan;
-        $tenTu = $request->ten_tu;
-        $gia = $request->gia;
-
-        $existingNgan = PhanloaiNgan::where('ten_ngan', $tenNgan)
-            ->where('ten_tu', $tenTu)
-            ->where('id', '!=', $id) // Loại trừ bản ghi đang được chỉnh sửa
-            ->first();
-
-        if ($existingNgan) {
-            // Dữ liệu đã tồn tại
-            return back()->with('error', 'Dữ liệu đã tồn tại.');
-        }
+        $request->validate([
+            'ten_ngan' => ['required',
+                Rule::unique('phanloai_ngan')->where(function ($query) use ($request) {
+                    return $query->where('ten_tu', $request->ten_tu);
+                }),
+            ],
+            'gia' => 'required'
+        ], [
+            'ten_ngan.required' => 'Vui lòng nhập tên ngăn',
+            'ten_ngan.unique' => 'Tên phân loại ngăn đã tồn tại ',
+            'gia.required' => 'Vui lòng nhập giá'
+        ]);
 
         $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-        $phanloaiNgan->ten_ngan = $tenNgan;
-        $phanloaiNgan->ten_tu = $tenTu;
-        $phanloaiNgan->gia = $gia;
-        $phanloaiNgan->save();
+        $phanloaiNgan->update([
+            'ten_ngan' => $request->ten_ngan,
+            'ten_tu' => $request->ten_tu,
+            'gia' => $request->gia
+        ]);
 
         return redirect()->route('category.index.phanloai')->with('success', 'Cập nhật dữ liệu thành công.');
     }
@@ -119,51 +114,55 @@ class PhanloaiNganController extends Controller
 
     public function storeAPI(Request $request)
     {
-        $tenNgan = $request->ten_ngan;
-        $phanloaiId = $request->phanloai_id;
-        $gia = $request->gia;
+        $request->validate([
+            'ten_ngan' => ['required',
+                Rule::unique('phanloai_ngan')->where(function ($query) use ($request) {
+                    return $query->where('phanloai_id', $request->phanloai_id);
+                }),
+            ],
+            'phanloai_id' => 'required',
+            'gia' => 'required'
+        ], [
+            'ten_ngan.required' => 'Vui lòng nhập tên ngăn',
+            'ten_ngan.unique' => 'Tên phân loại ngăn đã tồn tại ',
+            'phanloai_id.required' => 'Vui lòng nhập phân loại',
+            'gia.required' => 'Vui lòng nhập giá'
+        ]);
 
-        $existingNgan = PhanloaiNgan::where('ten_ngan', $tenNgan)
-            ->where('phanloai_id', $phanloaiId)
-            ->first();
+        $phanloaiNgan = PhanloaiNgan::create([
+            'ten_ngan' => $request->ten_ngan,
+            'phanloai_id' => $request->phanloai_id,
+            'ten_tu' => PhanLoai::where('id', $request->phanloai_id)->value('ma_tu'),
+            'gia' => $request->gia
+        ]);
 
-        if ($existingNgan) {
-            return response()->json(['error' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.'], 400);
-        }
-
-        $phanloaiNgan = new PhanloaiNgan();
-        $phanloaiNgan->ten_ngan = $request->ten_ngan;
-        $phanloaiNgan->phanloai_id = $request->phanloai_id;
-        $phanloaiNgan->ten_tu = PhanLoai::where('id', $request->phanloai_id)->value('ma_tu');
-        $phanloaiNgan->gia = $request->gia;
-        $phanloaiNgan->save();
-
-        return response()->json(['success' => 'Thêm thành công.','Phan Loai Ngan' => $phanloaiNgan], 200);
+        return response()->json(['success' => 'Thêm thành công.', 'Phan Loai Ngan' => $phanloaiNgan], 200);
 
 
     }
 
     public function updateAPI(Request $request, $id)
     {
-        $tenNgan = $request->ten_ngan;
-        $tenTu = $request->ten_tu;
-        $gia = $request->gia;
 
-        $existingNgan = PhanloaiNgan::where('ten_ngan', $tenNgan)
-            ->where('ten_tu', $tenTu)
-            ->where('id', '!=', $id) // Loại trừ bản ghi đang được chỉnh sửa
-            ->first();
-
-        if ($existingNgan) {
-            // Dữ liệu đã tồn tại
-            return response()->json(['error', 'Dữ liệu đã tồn tại.'], 400);
-        }
+        $request->validate([
+            'ten_ngan' => ['required',
+                Rule::unique('phanloai_ngan')->where(function ($query) use ($request) {
+                    return $query->where('ten_tu', $request->ten_tu);
+                }),
+            ],
+            'gia' => 'required'
+        ], [
+            'ten_ngan.required' => 'Vui lòng nhập tên ngăn',
+            'ten_ngan.unique' => 'Tên phân loại ngăn đã tồn tại ',
+            'gia.required' => 'Vui lòng nhập giá'
+        ]);
 
         $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-        $phanloaiNgan->ten_ngan = $tenNgan;
-        $phanloaiNgan->ten_tu = $tenTu;
-        $phanloaiNgan->gia = $gia;
-        $phanloaiNgan->save();
+        $phanloaiNgan->update([
+            'ten_ngan' => $request->ten_ngan,
+            'ten_tu' => $request->ten_tu,
+            'gia' => $request->gia
+        ]);
 
         return response()->json(['success', 'Cập nhật dữ liệu thành công.', 'Sua Phan Loai Ngan' => $phanloaiNgan], 200);
     }

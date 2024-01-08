@@ -43,3 +43,6 @@
 .text-md-right {
     margin-left: 15px;
 }
+.invalid-feedback {
+    color: red;
+}

@@ -27,16 +27,7 @@
                     @csrf
 
                     <div class="box-body">
-                        <!-- Hiển thị thông báo lỗi -->
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+
 
                         <!-- Hiển thị thông báo thành công -->
                         @if(session('success'))
@@ -53,34 +44,59 @@
 
                         <div class="form-group">
                             <label for="ten_ngan">Tên ngăn:</label>
-                            <input type="text" name="ten_ngan" id="ten_ngan" class="form-control" required>
+                            <input type="text" name="ten_ngan" id="ten_ngan"
+                                   class="form-control @error('ten_ngan') is-invalid @enderror">
+                            @error('ten_ngan')
+                            <div class="invalid-feedback">
+                                <b>{{ $message }}</b>
+                            </div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="phanloai_id">Phân loại ID:</label>
-                            <select name="phanloai_id" id="phanloai_id" class="form-control" required>
+                            <select name="phanloai_id" id="phanloai_id"
+                                    class="form-control @error('phanloai_id') is-invalid @enderror">
                                 <option value="">-- Chọn phân loại --</option> <!-- Option mặc định -->
                                 @foreach($phanLoais as $phanLoai)
-                                        <option value="{{ $phanLoai->id }}">{{ $phanLoai->ten_tu }}
-                                        -{{ $phanLoai->phanloai_id }}    </option>
+                                    <option value="{{ $phanLoai->id }}">{{ $phanLoai->ten_tu }}
+                                        - {{ $phanLoai->phanloai_id }}</option>
                                 @endforeach
                             </select>
+                            @error('phanloai_id')
+                            <div class="invalid-feedback">
+                                <b>{{ $message }}</b>
+                            </div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="phanloai_ngan">Phân loại:</label>
-                            <select name="phanloai_ngan" id="phanloai_ngan" class="form-control" required>
-{{--                                @foreach($phanLoais as $phanLoai)--}}
-{{--                                    <option value="{{ $phanLoai->id }}">{{ $phanLoai->ten_ngan }}   </option>--}}
-{{--                                @endforeach--}}
+                            <select name="phanloai_ngan" id="phanloai_ngan"
+                                    class="form-control @error('phanloai_ngan') is-invalid @enderror">
+                                <!-- Đoạn code foreach đã bị comment, bạn có thể bỏ comment để hiển thị các option từ $phanLoais -->
+                                {{-- @foreach($phanLoais as $phanLoai)
+                                    <option value="{{ $phanLoai->id }}">{{ $phanLoai->ten_ngan }}</option>
+                                @endforeach --}}
                             </select>
+                            @error('phanloai_ngan')
+                            <div class="invalid-feedback">
+                                <b>{{ $message }}</b>
+                            </div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="trang_thai">Trạng thái:</label>
-                            <select name="trang_thai" id="trang_thai" class="form-control" required>
+                            <select name="trang_thai" id="trang_thai"
+                                    class="form-control @error('trang_thai') is-invalid @enderror">
                                 <option value="0">Chưa thuê</option>
                             </select>
+                            @error('trang_thai')
+                            <div class="invalid-feedback">
+                                <b>{{ $message }}</b>
+                            </div>
+                            @enderror
                         </div>
                     </div>
                     <!-- /.box-body -->
@@ -115,12 +131,12 @@
                         $('#phanloai_ngan').empty(); // Xóa các option cũ
                         $('#phanloai_ngan').append('<option value="' + response.data.id + '">' + response.data.ten_ngan + '</option>');
 
-                },
-                error: function(xhr) {
-                    console.log(xhr.responseText);
-                }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
 @endsection

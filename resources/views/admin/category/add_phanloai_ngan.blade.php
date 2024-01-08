@@ -1,7 +1,3 @@
-
-
-
-
 @extends('admin.master')
 @section('title', "Thêm phân loại ngăn")
 @section('title-page', "Quản lý phân loại ngăn")
@@ -30,7 +26,8 @@
 
                         <div class="box-tools">
                             <div class="input-group input-group-sm" style="width: 150px;">
-                                <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
+                                <input type="text" name="table_search" class="form-control pull-right"
+                                       placeholder="Search">
 
                                 <div class="input-group-btn">
                                     <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
@@ -41,13 +38,14 @@
                     <!-- /.box-header -->
                     <div class="box-body table-responsive no-padding">
                         <table class="table table-hover">
-                            @if (session('success'))
+                            <!-- Hiển thị thông báo thành công -->
+                            @if(session('success'))
                                 <div class="alert alert-success">
                                     {{ session('success') }}
                                 </div>
                             @endif
 
-                            @if (session('error'))
+                            @if(session('error'))
                                 <div class="alert alert-danger">
                                     {{ session('error') }}
                                 </div>
@@ -58,17 +56,30 @@
 
                                 <div class="form-group">
                                     <label for="ten_ngan">Tên ngăn:</label>
-                                    <input type="text" name="ten_ngan" id="ten_ngan" class="form-control">
+                                    <input type="text" name="ten_ngan" id="ten_ngan"
+                                           class="form-control @error('ten_ngan') is-invalid @enderror">
+                                    @error('ten_ngan')
+                                    <div class="invalid-feedback">
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-group">
                                     <label for="phanloai_id">Mã tủ:</label>
-                                    <select name="phanloai_id" id="phanloai_id" class="form-control">
+                                    <select name="phanloai_id" id="phanloai_id"
+                                            class="form-control @error('phanloai_id') is-invalid @enderror">
                                         <option value="">Chọn mã tủ</option>
                                         @foreach ($phanloaiNgan as $phanloai)
-                                            <option value="{{ $phanloai->id }}">{{ $phanloai->ma_tu }} - {{ $phanloai->ten }} </option>
+                                            <option value="{{ $phanloai->id }}">{{ $phanloai->ma_tu }}
+                                                - {{ $phanloai->ten }} </option>
                                         @endforeach
                                     </select>
+                                    @error('phanloai_id')
+                                    <div class="invalid-feedback">
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                    @enderror
                                 </div>
 
                                 {{--            <div class="form-group">--}}
@@ -80,7 +91,13 @@
 
                                 <div class="form-group">
                                     <label for="gia">Giá:</label>
-                                    <input type="text" name="gia" id="gia" class="form-control">
+                                    <input type="text" name="gia" id="gia"
+                                           class="form-control @error('gia') is-invalid @enderror">
+                                    @error('gia')
+                                    <div class="invalid-feedback">
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                    @enderror
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Thêm</button>

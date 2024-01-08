@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PhanLoai;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TuController extends Controller
 {
@@ -25,60 +26,76 @@ class TuController extends Controller
 
     public function store(Request $request)
     {
-        // Kiểm tra xem "ma_tu" đã tồn tại trong cơ sở dữ liệu hay chưa
-    $existingTu = PhanLoai::where('ma_tu', $request->ma_tu)->first();
 
-    if ($existingTu) {
-        session()->flash('error', 'Mã tủ đã tồn tại trong cơ sở dữ liệu.');
-//        return response()->json(['error' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.'], 400);
-        return redirect()->route('category.index')->with('error', 'Mã tủ đã tồn tại trong cơ sở dữ liệu.');
-    }
-        //
-        $tu = new PhanLoai();
-        $tu->ma_tu = $request->ma_tu;
-        $tu->ten = $request->ten;
-        $tu->gia = $request->gia;
-        $tu->save();
+        $request->validate([
+            'ma_tu' => [
+                'required',
+                Rule::unique('phan_loai')->where(function ($query) use ($request) {
+                    return $query->where('ma_tu', $request->ma_tu);
+                }),
+            ],
+            'ten' => 'required',
+            'gia' => 'required'
+        ], [
+            'ma_tu.required' => 'Vui lòng nhập mã tủ.',
+            'ma_tu.unique' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.',
+            'ten.required' => 'Vui lòng nhập tên tủ.',
+            'gia.required' => 'Vui lòng nhập giá.',
+        ]);
 
+
+        PhanLoai::create([
+            'ma_tu' => $request->ma_tu,
+            'ten' => $request->ten,
+            'gia' => $request->gia
+        ]);
 
         session()->flash('success', 'Tủ đã được thêm thành công.');
-//        return response()->json(['success' => 'Tủ đã được thêm thành công.', 'route' => route('api.category.add_tu')], 200);
         return redirect()->route('category.index');
     }
 
 
-    public function show(PhanLoai $phanLoai)
+    public function edit($id)
     {
-        //
-    }
-
-
-    public function edit(PhanLoai $phanLoai)
-    {
-        return view('admin.category.edit_tu', ['tu' => $phanLoai]);
-    }
-
-    public function update(Request $request, PhanLoai $phanLoai)
-    {
-        // Kiểm tra xem "ma_tu" đã tồn tại trong cơ sở dữ liệu hay chưa (trừ tủ hiện tại)
-        $existingTu = PhanLoai::where('ma_tu', $request->ma_tu)->where('id', '!=', $phanLoai->id)->first();
-
-        if ($existingTu) {
-            session()->flash('error', 'Mã tủ đã tồn tại trong cơ sở dữ liệu.');
-            return redirect()->route('category.edit_tu', $phanLoai)->with('error', 'Mã tủ đã tồn tại trong cơ sở dữ liệu.');
+        try {
+            $phanLoai = PhanLoai::findOrFail($id);
+            return view('admin.category.edit_tu', [
+                'tu' => $phanLoai
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            session()->flash('error', 'ID không tồn tại.');
+            return redirect()->back();
         }
+    }
 
-        $phanLoai->ma_tu = $request->ma_tu;
-        $phanLoai->ten = $request->ten;
-        $phanLoai->gia = $request->gia;
-        $phanLoai->save();
+    public function update(Request $request, $id)
+    {
+        $phanLoai = PhanLoai::findOrFail($id);
+
+        $request->validate([
+            'ma_tu' => 'required|unique:phan_loai,ma_tu,' . $id . ',id',
+            'ten' => 'required',
+            'gia' => 'required'
+        ], [
+            'ma_tu.required' => 'Vui lòng nhập mã tủ.',
+            'ma_tu.unique' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.',
+            'ten.required' => 'Vui lòng nhập tên tủ.',
+            'gia.required' => 'Vui lòng nhập giá.',
+        ]);
+
+        $phanLoai->update([
+            'ma_tu' => $request->ma_tu,
+            'ten' => $request->ten,
+            'gia' => $request->gia
+        ]);
 
         session()->flash('success', 'Tủ đã được cập nhật thành công.');
         return redirect()->route('category.index', $phanLoai);
     }
 
-    public function destroy(PhanLoai $phanLoai)
+    public function destroy($id)
     {
+        $phanLoai = PhanLoai::findOrFail($id);
         $phanLoai->delete();
 
         session()->flash('success', 'Tủ đã được xóa thành công.');
@@ -87,44 +104,69 @@ class TuController extends Controller
 
     public function storeAPI(Request $request)
     {
+
+        $request->validate([
+            'ma_tu' => [
+                'required',
+                Rule::unique('phan_loai')->where(function ($query) use ($request) {
+                    return $query->where('ma_tu', $request->ma_tu);
+                }),
+            ],
+            'ten' => 'required',
+            'gia' => 'required'
+        ], [
+            'ma_tu.required' => 'Vui lòng nhập mã tủ.',
+            'ma_tu.unique' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.',
+            'ten.required' => 'Vui lòng nhập tên tủ.',
+            'gia.required' => 'Vui lòng nhập giá.',
+        ]);
+
         // Kiểm tra xem "ma_tu" đã tồn tại trong cơ sở dữ liệu hay chưa
         $existingTu = PhanLoai::where('ma_tu', $request->ma_tu)->first();
 
         if ($existingTu) {
             session()->flash('error', 'Mã tủ đã tồn tại trong cơ sở dữ liệu.');
-        return response()->json(['error' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.'], 400);
+            return response()->json(['error' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.'], 400);
 
         }
         //
-        $tu = new PhanLoai();
-        $tu->ma_tu = $request->ma_tu;
-        $tu->ten = $request->ten;
-        $tu->gia = $request->gia;
-        $tu->save();
+        $tu = PhanLoai::create([
+            'ma_tu' => $request->ma_tu,
+            'ten' => $request->ten,
+            'gia' => $request->gia
+        ]);
 
-        return response()->json(['success' => 'Tủ đã được thêm thành công.', 'Phan Loai'=> $tu], 200);
+        return response()->json(['success' => 'Tủ đã được thêm thành công.', 'Phan Loai' => $tu], 200);
     }
 
-    public function updateAPI(Request $request, PhanLoai $phanLoai)
+    public function updateAPI(Request $request, $id)
     {
-        // Kiểm tra xem "ma_tu" đã tồn tại trong cơ sở dữ liệu hay chưa (trừ tủ hiện tại)
-        $existingTu = PhanLoai::where('ma_tu', $request->ma_tu)->where('id', '!=', $phanLoai->id)->first();
+        $phanLoai = PhanLoai::findOrFail($id);
 
-        if ($existingTu) {
-            return response()->json(['error' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.'], 400);
-        }
+        $request->validate([
+            'ma_tu' => 'required|unique:phan_loai,ma_tu,' . $id . ',id',
+            'ten' => 'required',
+            'gia' => 'required'
+        ], [
+            'ma_tu.required' => 'Vui lòng nhập mã tủ.',
+            'ma_tu.unique' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.',
+            'ten.required' => 'Vui lòng nhập tên tủ.',
+            'gia.required' => 'Vui lòng nhập giá.',
+        ]);
 
-        $phanLoai->ma_tu = $request->ma_tu;
-        $phanLoai->ten = $request->ten;
-        $phanLoai->gia = $request->gia;
-        $phanLoai->save();
+        $phanLoai->update([
+            'ma_tu' => $request->ma_tu,
+            'ten' => $request->ten,
+            'gia' => $request->gia
+        ]);
 
         return response()->json(['success' => 'Tủ đã được cập nhật thành công.', 'phanLoai' => $phanLoai], 200);
     }
 
-    public function destroyAPI(PhanLoai $phanLoai)
+    public function destroyAPI($id)
     {
         try {
+            $phanLoai = PhanLoai::findOrFail($id);
             $deleted = $phanLoai->delete();
 
             if ($deleted) {

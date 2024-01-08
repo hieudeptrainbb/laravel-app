@@ -52,12 +52,12 @@
           @endif
 
           <div class="form-group">
-            <label for="phanloai_id">Phân loại</label>
+            <label for="phanloai_id">Tủ</label>
             <select class="form-control" id="phanloai_id" name="phanloai_id">
-                <option value="">-- Chọn phân loại --</option> <!-- Option mặc định -->
+                <option value="">-- Chọn tủ --</option> <!-- Option mặc định -->
                 <!-- Lặp qua danh sách phân loại để tạo các option -->
                 @foreach ($phanLoais as $phanLoai)
-                    <option value="{{ $phanLoai->id }}">{{ $phanLoai->ma_tu }}</option>
+                    <option value="{{ $phanLoai->id }}">{{ $phanLoai->ten }}</option>
                 @endforeach
             </select>
         </div>

@@ -38,15 +38,27 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body table-responsive no-padding">
-                        @if(session('error'))
+                        <!-- Hiển thị thông báo lỗi -->
+                        @if ($errors->any())
                             <div class="alert alert-danger">
-                                {{ session('error') }}
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
 
+                        <!-- Hiển thị thông báo thành công -->
                         @if(session('success'))
                             <div class="alert alert-success">
                                 {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
                             </div>
                         @endif
                         <table class="table table-hover">
@@ -54,17 +66,7 @@
                                 @csrf
                                 @method('PUT')
 
-                                @if (session('success'))
-                                    <div class="alert alert-success" role="alert">
-                                        {{ session('success') }}
-                                    </div>
-                                @endif
 
-                                @if (session('error'))
-                                    <div class="alert alert-danger" role="alert">
-                                        {{ session('error') }}
-                                    </div>
-                                @endif
 
                                 <div class="form-group row">
                                     <label for="ten_tu" class="col-md-4 col-form-label text-md-right">Tên tủ</label>
