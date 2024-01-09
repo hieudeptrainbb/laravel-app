@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Repositories\TuRepositoryInterface;
 use App\Models\PhanloaiNgan;
 use App\Models\PhanLoai;
 use Illuminate\Http\Request;
@@ -10,11 +10,17 @@ use Illuminate\Validation\Rule;
 
 class PhanloaiNganController extends Controller
 {
+    private $tuRepository;
+
+    public function __construct(TuRepositoryInterface $tuRepository)
+    {
+        $this->TuRepository = $tuRepository;
+    }
 
     public function index()
     {
         //
-        $phanloaiNgan = PhanLoai::all();
+        $phanloaiNgan = $this->TuRepository->allPhanLoaiNgan();
 
         return view('admin.category.add_phanloai_ngan', compact('phanloaiNgan'));
     }
@@ -23,7 +29,7 @@ class PhanloaiNganController extends Controller
     public function create()
     {
         //
-        $phanloais = PhanloaiNgan::all();
+        $phanloais = $this->TuRepository->allPhanLoaiNgan();
 
         return view('admin.category.index_phan_loai_ngan', compact('phanloais'));
 
@@ -48,7 +54,7 @@ class PhanloaiNganController extends Controller
         ]);
 
 
-        PhanloaiNgan::create([
+        $this->TuRepository->createPhanLoaiNgan([
             'ten_ngan' => $request->ten_ngan,
             'phanloai_id' => $request->phanloai_id,
             'ten_tu' => PhanLoai::where('id', $request->phanloai_id)->value('ma_tu'),
@@ -63,8 +69,8 @@ class PhanloaiNganController extends Controller
     public function edit($id)
     {
         try {
-            $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-            $phanloai = PhanLoai::all(); // Lấy danh sách phân loại
+            $phanloaiNgan = $this->TuRepository->findPhanLoaiNgan($id);
+            $phanloai = $this->TuRepository->all(); // Lấy danh sách phân loại
 
             return view('admin.category.edit_phanloai_ngan', compact('phanloaiNgan', 'phanloai'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
@@ -76,6 +82,8 @@ class PhanloaiNganController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->TuRepository->findPhanLoaiNgan($id);
+
         $request->validate([
             'ten_ngan' => ['required',
                 Rule::unique('phanloai_ngan')->where(function ($query) use ($request) {
@@ -89,8 +97,7 @@ class PhanloaiNganController extends Controller
             'gia.required' => 'Vui lòng nhập giá'
         ]);
 
-        $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-        $phanloaiNgan->update([
+        $data = $this->TuRepository->updatePhanLoaiNgan($id, [
             'ten_ngan' => $request->ten_ngan,
             'ten_tu' => $request->ten_tu,
             'gia' => $request->gia
@@ -102,11 +109,15 @@ class PhanloaiNganController extends Controller
 
     public function destroy($id)
     {
-        $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-        $phanloaiNgan->delete();
+        try {
+            $phanloaiNgan = $this->TuRepository->deletePhanLoaiNgan($id);
 
-        session()->flash('success', 'Xóa dữ liệu thành công.');
-        return redirect()->route('category.index.phanloai');
+            session()->flash('success', 'Xóa dữ liệu thành công.');
+            return redirect()->route('category.index.phanloai');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            session()->flash('error', 'ID không tồn tại.');
+            return redirect()->back();
+        }
     }
 
 
@@ -129,7 +140,8 @@ class PhanloaiNganController extends Controller
             'gia.required' => 'Vui lòng nhập giá'
         ]);
 
-        $phanloaiNgan = PhanloaiNgan::create([
+
+        $phanloaiNgan = $this->TuRepository->createPhanLoaiNgan([
             'ten_ngan' => $request->ten_ngan,
             'phanloai_id' => $request->phanloai_id,
             'ten_tu' => PhanLoai::where('id', $request->phanloai_id)->value('ma_tu'),
@@ -157,8 +169,7 @@ class PhanloaiNganController extends Controller
             'gia.required' => 'Vui lòng nhập giá'
         ]);
 
-        $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-        $phanloaiNgan->update([
+        $phanloaiNgan = $this->TuRepository->updatePhanLoaiNgan($id, [
             'ten_ngan' => $request->ten_ngan,
             'ten_tu' => $request->ten_tu,
             'gia' => $request->gia
@@ -170,8 +181,8 @@ class PhanloaiNganController extends Controller
     public function destroyAPI($id)
     {
         try {
-            $phanloaiNgan = PhanloaiNgan::findOrFail($id);
-            $deleted = $phanloaiNgan->delete();
+            $phanloaiNgan = $this->TuRepository->findPhanLoaiNgan($id);
+            $deleted = $this->TuRepository->deletePhanLoaiNgan($id);
 
             if ($deleted) {
                 return response()->json(['success' => 'Xóa dữ liệu thành công.', 'Xoa Phan Loai Ngan' => $phanloaiNgan], 200);

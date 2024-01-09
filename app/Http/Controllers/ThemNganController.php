@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\TuRepositoryInterface;
 use App\Models\Ngan;
 use App\Models\PhanLoai;
 use App\Models\PhanloaiNgan;
@@ -10,12 +11,18 @@ use Illuminate\Validation\Rule;
 
 class ThemNganController extends Controller
 {
+    private $nganRepository;
+
+    public function __construct(TuRepositoryInterface $nganRepository)
+    {
+        $this->TuRepository = $nganRepository;
+    }
 
     public function index()
     {
 
         //
-        $phanLoais = PhanloaiNgan::all();
+        $phanLoais = $this->TuRepository->all();
 
         return view('admin.category.add_ngan', compact('phanLoais'));
     }
@@ -36,7 +43,7 @@ class ThemNganController extends Controller
 
     public function create()
     {
-        $ngans = Ngan::all();
+        $ngans = $this->TuRepository->allNgan();
 
         return view('admin.category.index_ngan', compact('ngans'));
     }
@@ -63,7 +70,7 @@ class ThemNganController extends Controller
 
 
         $phanloai_ngan = PhanloaiNgan::query()->find($request->phanloai_ngan);
-        Ngan::create([
+        $this->TuRepository->createNgan([
             'ten_ngan' => $request->ten_ngan,
             'phanloai_ngan' => $phanloai_ngan->ten_ngan,
             'phanloai_id' => $phanloai_ngan->phanloai_id,
@@ -80,8 +87,8 @@ class ThemNganController extends Controller
     public function edit($id)
     {
         try {
-            $ngan = Ngan::findOrFail($id);
-            $phanLoais = PhanloaiNgan::all();
+            $ngan = $this->TuRepository->findNgan($id);
+            $phanLoais = $this->TuRepository->allPhanLoaiNgan();
 
             return view('admin.category.edit_ngan', compact('ngan', 'phanLoais'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
@@ -92,10 +99,8 @@ class ThemNganController extends Controller
 
     public function update(Request $request, $id)
     {
-        $ngan = Ngan::findOrFail($id);
         $request->validate([
             'ten_ngan' => 'required|unique:ngan,ten_ngan,' . $id . ',id',
-
             'trang_thai' => 'required'
         ], [
             'ten_ngan.required' => 'Vui lòng nhập tên ngăn.',
@@ -105,7 +110,7 @@ class ThemNganController extends Controller
 
         PhanloaiNgan::query()->find($request->phanloai_ngan);
 
-        $ngan->update([
+        $this->TuRepository->updateNgan($id, [
             'ten_ngan' => $request->ten_ngan,
             'trang_thai' => $request->trang_thai
         ]);
@@ -115,7 +120,7 @@ class ThemNganController extends Controller
 
     public function destroy($id)
     {
-        $ngan = Ngan::findOrFail($id);
+        $ngan = $this->TuRepository->findNgan($id);
         $ngan->delete();
 
         return redirect()->route('category.index_ngan')->with('success', 'Xóa dữ liệu thành công.');

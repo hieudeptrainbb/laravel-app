@@ -46,4 +46,18 @@ class EventController extends Controller
     {
         //
     }
+
+    public function tinhToan()
+    {
+        $a = 20;
+        $b = 2;
+        $this->tinh($a, $b);
+    }
+
+    public function goiMang()
+    {
+        $this->mang();
+    }
+
+
 }

@@ -3,15 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\PhanLoai;
+use App\Repositories\TuRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class TuController extends Controller
 {
+    private $tuRepository;
+
+    public function __construct(TuRepositoryInterface $tuRepository)
+    {
+        $this->TuRepository = $tuRepository;
+    }
 
     public function index()
     {
-        $phanloais = PhanLoai::all();
+        $phanloais = $this->TuRepository->all();
 
         return view('admin.category.index_add_tu', ['phanloais' => $phanloais]);
     }
@@ -20,13 +27,12 @@ class TuController extends Controller
     public function create()
     {
         //
-        $phanloais = PhanLoai::all();
+        $phanloais = $this->TuRepository->all();
         return view('admin.category.add_tu', ['phanloais' => $phanloais]);
     }
 
     public function store(Request $request)
     {
-
         $request->validate([
             'ma_tu' => [
                 'required',
@@ -43,8 +49,7 @@ class TuController extends Controller
             'gia.required' => 'Vui lòng nhập giá.',
         ]);
 
-
-        PhanLoai::create([
+        $this->TuRepository->create([
             'ma_tu' => $request->ma_tu,
             'ten' => $request->ten,
             'gia' => $request->gia
@@ -54,11 +59,10 @@ class TuController extends Controller
         return redirect()->route('category.index');
     }
 
-
     public function edit($id)
     {
         try {
-            $phanLoai = PhanLoai::findOrFail($id);
+            $phanLoai = $this->TuRepository->find($id);
             return view('admin.category.edit_tu', [
                 'tu' => $phanLoai
             ]);
@@ -70,7 +74,7 @@ class TuController extends Controller
 
     public function update(Request $request, $id)
     {
-        $phanLoai = PhanLoai::findOrFail($id);
+        $phanLoai = $this->TuRepository->find($id);
 
         $request->validate([
             'ma_tu' => 'required|unique:phan_loai,ma_tu,' . $id . ',id',
@@ -83,7 +87,7 @@ class TuController extends Controller
             'gia.required' => 'Vui lòng nhập giá.',
         ]);
 
-        $phanLoai->update([
+        $this->TuRepository->update($id, [
             'ma_tu' => $request->ma_tu,
             'ten' => $request->ten,
             'gia' => $request->gia
@@ -95,16 +99,19 @@ class TuController extends Controller
 
     public function destroy($id)
     {
-        $phanLoai = PhanLoai::findOrFail($id);
-        $phanLoai->delete();
+        try {
+            $this->TuRepository->delete($id);
 
-        session()->flash('success', 'Tủ đã được xóa thành công.');
-        return redirect()->route('category.index');
+            session()->flash('success', 'Tủ đã được xóa thành công.');
+            return redirect()->route('category.index');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            session()->flash('error', 'ID không tồn tại.');
+            return redirect()->back();
+        }
     }
 
     public function storeAPI(Request $request)
     {
-
         $request->validate([
             'ma_tu' => [
                 'required',
@@ -121,16 +128,7 @@ class TuController extends Controller
             'gia.required' => 'Vui lòng nhập giá.',
         ]);
 
-        // Kiểm tra xem "ma_tu" đã tồn tại trong cơ sở dữ liệu hay chưa
-        $existingTu = PhanLoai::where('ma_tu', $request->ma_tu)->first();
-
-        if ($existingTu) {
-            session()->flash('error', 'Mã tủ đã tồn tại trong cơ sở dữ liệu.');
-            return response()->json(['error' => 'Mã tủ đã tồn tại trong cơ sở dữ liệu.'], 400);
-
-        }
-        //
-        $tu = PhanLoai::create([
+        $this->TuRepository->create([
             'ma_tu' => $request->ma_tu,
             'ten' => $request->ten,
             'gia' => $request->gia
@@ -141,7 +139,7 @@ class TuController extends Controller
 
     public function updateAPI(Request $request, $id)
     {
-        $phanLoai = PhanLoai::findOrFail($id);
+        $phanLoai = $this->TuRepository->find($id);
 
         $request->validate([
             'ma_tu' => 'required|unique:phan_loai,ma_tu,' . $id . ',id',
@@ -154,11 +152,13 @@ class TuController extends Controller
             'gia.required' => 'Vui lòng nhập giá.',
         ]);
 
-        $phanLoai->update([
+        $this->TuRepository->update($id, [
             'ma_tu' => $request->ma_tu,
             'ten' => $request->ten,
             'gia' => $request->gia
         ]);
+
+        $this->TuRepository->update($id, $data);
 
         return response()->json(['success' => 'Tủ đã được cập nhật thành công.', 'phanLoai' => $phanLoai], 200);
     }
@@ -166,8 +166,9 @@ class TuController extends Controller
     public function destroyAPI($id)
     {
         try {
-            $phanLoai = PhanLoai::findOrFail($id);
-            $deleted = $phanLoai->delete();
+            $deleted = $this->TuRepository->delete($id);
+
+            session()->flash('success', 'Tủ đã được xóa thành công.');
 
             if ($deleted) {
                 return response()->json(['success' => 'Tủ đã được xoá thành công.', 'deleted' => $phanLoai], 200);

@@ -82,7 +82,8 @@ Route::post('/get-phanloai', [ThemNganController::class, 'getPhanLoai'])->name('
 
 
 
-
+Route::get('/tinh-toan', [EventController::class, 'tinhToan']);
+Route::get('/mang', [EventController::class, 'goiMang']);
 
 
 Auth::routes();
